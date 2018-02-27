@@ -1,0 +1,249 @@
+---
+title: "Sample Project Tree in R"
+author: "mareviv"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document:
+    highlight: tango
+editor_options: 
+  chunk_output_type: console
+params:
+   dataname: "iris"
+   sheet: 1
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(collapse = TRUE, echo=TRUE, eval=TRUE, warning=FALSE, message=FALSE, comment="  ")
+```
+
+```{r}
+# params <- NULL
+# params$dataname <- "iris"
+x <- NULL
+y <- NULL
+fac <- NULL
+xlabs <- NULL
+ylabs <- NULL
+fac_legend <- NULL
+```
+
+# Libraries & working directories
+
+```{r results='hide'}
+source("./rscripts/libraries.R")
+source("./rscripts/directories.R")
+source("./rscripts/ggtheme.R")
+```
+
+# Data import
+
+```{r}
+# source("./rscripts/import_xlsx.R")
+# source("./rscripts/import_xls.R")
+# source("./rscripts/import_csv.R")
+source("./rscripts/import_Rdata.R", echo=TRUE)
+
+# Clean data
+# source("./rscripts/clean_data.R") # not necessary in iris dataset
+```
+
+# Plotting
+
+```{r}
+source("./rscripts/summaries.R", echo=TRUE)
+```
+
+### Bar plots 
+
+```{r fig.height=5, fig.width=6}
+x <- mydata %>%
+  select(Species)
+fac <- mydata %>%
+  select(Species)
+
+source("./rscripts/barplot.R", echo=TRUE)
+barplot1 <- p1
+barplot1
+```
+
+### Histograms & Density plots
+
+```{r fig.height=5, fig.width=6}
+x <- mydata %>%
+  select(Sepal.Length)
+fac <- mydata %>%
+  select(Species)
+
+source("./rscripts/histogram.R", echo=TRUE)
+histog1 <- p1 + 
+  facet_grid(Species ~ .)
+histog1 
+
+source("./rscripts/density.R", echo=TRUE)
+densit1 <- themed_basic(p1) + 
+  facet_grid(Species ~ .)
+densit1 
+```
+
+### Scatterplots
+
+```{r fig.height=5, fig.width=6}
+x <- mydata %>%
+  select(Sepal.Length)
+y <- mydata %>%
+  select(Sepal.Width)
+fac <- mydata %>%
+  select(Species)
+
+source("./rscripts/scatterplot.R", echo=TRUE)
+scatter1 <- p1
+scatter1
+```
+
+
+# Simple hypothesis testing
+
+### Chi-square
+
+Tutorial: [statmethods.net/stats/frequencies.html](https://www.statmethods.net/stats/frequencies.html)
+
+We divide one of our varibles in quantiles: `Petal.Width`  
+
+```{r}
+# Define quantiles
+quant <- quantile( mydata$Petal.Width, seq(0,1,.25))
+# Create new variable from quantiles
+mydata$petal_factor <- cut( mydata$Petal.Width, unique(quant),include.lowest=TRUE)
+```
+
+```{r}
+x <- mydata %>%
+  select(Species)
+y <- mydata %>%
+  select(petal_factor) 
+table(x[,1], y[,1]) %>% 
+  kable()
+chisq_test1 <- table(x[,1], y[,1]) %>%
+  chisq.test()
+chisq_test1
+```
+
+
+### Wilcoxon rank-sum test
+
+Tutorial: [r-tutor.com/mann-whitney-wilcoxon-test](http://www.r-tutor.com/elementary-statistics/non-parametric-methods/mann-whitney-wilcoxon-test)
+
+```{r}
+dat <- mydata %>%
+  select(Species, Sepal.Width) %>%
+  mutate(Species2 = ifelse(Species == "setosa", "Setosa", "Versicolor/Virginica")) %>%
+  mutate(Species2 = as_factor(Species2))
+
+dat %>%
+  group_by(Species2) %>%
+  summarise(Sepal_width_median = median(Sepal.Width), mean=mean(Sepal.Width), sd=sd(Sepal.Width), count = n()) %>%
+  kable()
+
+wilcox <- wilcox.test(dat$Sepal.Width ~ dat$Species2, data=dat)
+wilcox
+```
+
+### ANOVA & Kruskall Wallis
+
+Turorial: [statmethods.net/stats/anova.html](https://www.statmethods.net/stats/anova.html)
+
+```{r}
+dat %>%
+  group_by(Species) %>%
+  count() %>% 
+  rename(Sepal_width = n) %>%
+  kable()
+```
+
+```{r}
+mydata %>%
+  select(Species, Sepal.Width, petal_factor) %>%
+  group_by(Species, petal_factor) %>%
+  count() %>% 
+  mutate(mean = mean(n)) %>% 
+  mutate(median = median(n)) %>% 
+  kable()
+```
+
+```{r}
+krus <- kruskal.test(Sepal.Width ~ Species, data = dat)
+krus
+```
+
+```{r}
+aov1 <- aov(Sepal.Width ~ Species, data = dat)
+aov1
+summary(aov1) 
+aov1$p.value <- summary(aov1)[[1]][[1,"Pr(>F)"]]
+```
+
+### Penalisation
+
+```{r comment="  ", message=FALSE, warning=FALSE}
+# Construct p-values table
+pvalues <- tibble(chi_spec_petal = chisq_test1$p.value, 
+                  wil_spec_sepal = wilcox$p.value, 
+                  kru_spec_sepal = krus$p.value,
+                  aov_spec_sepal = aov1$p.value
+                  ) %>%
+  t()  
+pvalues <-  as.data.frame(pvalues, row.names = rownames(pvalues)) %>%
+  mutate(name = rownames(pvalues)) %>%
+  rename(p = V1)
+
+source("./rscripts/penalisation.R", echo=FALSE) # uses packages qvalue & kableExtra, gives objects pvalues & pvalues_html
+
+pvalues_html %>%
+  kable("html", escape = F, align = "c") %>%
+  kable_styling("striped", full_width = F)
+```
+
+<div class="alert alert-warning">
+Por Benjamini-Hochberg FDR, s&oacute;lo se considerar&aacute;n significativos los p-valores **< `r round(p_value_threshold, 3)`**.   
+
+Por Bonferroni, s&oacute;lo se considerar&aacute;n significativos los p-valores **< `r round(p_value_bonferroni, 5)`**.  
+
+</div>
+
+
+
+
+# Save plots
+
+```{r}
+plot_width <- 6
+plot_height <- 4
+
+# TO PDF 
+plotname_scatter1 <- "scatter1.pdf"
+plotname_histog1 <- "histog1.pdf"
+plotname_densit1 <- "densit1.pdf"
+# TO PNG 
+plotname_barplot1 <- "barplot1.png"
+
+routeplot_scatter1 <- file.path(plotdir, plotname_scatter1)
+routeplot_histog1 <- file.path(plotdir, plotname_histog1)
+routeplot_densit1 <- file.path(plotdir, plotname_densit1)
+routeplot_barplot1 <- file.path(plotdir, plotname_barplot1)
+ggsave(routeplot_scatter1, scatter1, width = plot_width, height = plot_height) # (see http://ggplot2.tidyverse.org/reference/ggsave.html)
+ggsave(routeplot_histog1, histog1, width = plot_width, height = plot_height) 
+ggsave(routeplot_densit1, densit1, width = plot_width, height = plot_height)
+ggsave(routeplot_barplot1, barplot1, width = plot_width, height = plot_height) 
+```
+
+
+# Save data
+
+```{r}
+exported_dataname <- "mydata_exported"
+```
+
+```{r}
+source("./rscripts/save_data.R", echo=TRUE)
+```
