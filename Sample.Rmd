@@ -156,8 +156,7 @@ Turorial: [statmethods.net/stats/anova.html](https://www.statmethods.net/stats/a
 ```{r}
 dat %>%
   group_by(Species) %>%
-  count() %>% 
-  rename(Sepal_width = n) %>%
+  summarise(Sepal_width_median = median(Sepal.Width), mean=mean(Sepal.Width), sd=sd(Sepal.Width), count = n()) %>%
   kable()
 ```
 
@@ -165,9 +164,7 @@ dat %>%
 mydata %>%
   select(Species, Sepal.Width, petal_factor) %>%
   group_by(Species, petal_factor) %>%
-  count() %>% 
-  mutate(mean = mean(n)) %>% 
-  mutate(median = median(n)) %>% 
+  summarise(Sepal_width_median = median(Sepal.Width), mean=mean(Sepal.Width), sd=sd(Sepal.Width), count = n()) %>%
   kable()
 ```
 
