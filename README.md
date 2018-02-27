@@ -1,4 +1,4 @@
-# ProjectR
+# ProjectR2
 
 A more advanced template for self-contained projects  
 
