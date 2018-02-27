@@ -1,12 +1,9 @@
 # ProjectR
 
-A simple template for self-contained projects  
+A more advanced template for self-contained projects  
 
-https://aurora-mareviv.github.io/ProjectR/ 
+https://aurora-mareviv.github.io/ProjectR2/ 
 
-How it "works":  
-
-[aurora-mareviv.github.io/2017/12/minimal-project-tree-r/](https://aurora-mareviv.github.io/2017/12/minimal-project-tree-r/)
 
 Clone this repo!  
 
@@ -14,4 +11,3 @@ Clone this repo!
 
 <br>
 
-![image-sketch](./img/scheme.png)
