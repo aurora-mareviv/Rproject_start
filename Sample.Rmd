@@ -182,7 +182,7 @@ aov1$p.value <- summary(aov1)[[1]][[1,"Pr(>F)"]]
 
 ### Penalisation
 
-```{r comment="  ", message=FALSE, warning=FALSE}
+```{r}
 # Construct p-values table
 pvalues <- tibble(chi_spec_petal = chisq_test1$p.value, 
                   wil_spec_sepal = wilcox$p.value, 
