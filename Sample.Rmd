@@ -204,7 +204,7 @@ pvalues_html %>%
 ```
 
 <div class="alert alert-warning">
-Por Benjamini-Hochberg FDR, s&oacute;lo se considerar&aacute;n significativos los p-valores **< `r round(p_value_threshold, 3)`**.   
+After Benjamini-Hochberg FDR, s&oacute;lo se considerar&aacute;n significativos los p-valores **< `r round(p_value_threshold, 3)`**.   
 
 Por Bonferroni, s&oacute;lo se considerar&aacute;n significativos los p-valores **< `r round(p_value_bonferroni, 5)`**.  
 

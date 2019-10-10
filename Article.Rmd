@@ -1,0 +1,338 @@
+---
+title: "Relationship between different types of iris features and iris species"
+author: "Author A(a, b)"
+# date: "`r format(Sys.time(), '%d %B, %Y')`"
+csl: ./bib/csl/anesthesiology.csl
+output:
+  word_document:
+    highlight: tango
+    toc: false
+    reference_docx: ./assets/word_templates/mystyles9pt-orig.docx
+  html_document:
+    toc: true
+    toc_depth: 4
+    # toc_float:
+      # collapsed: false
+      # smooth_scroll: false
+    highlight: tango
+always_allow_html: yes 
+bibliography: ./bib/bibliography.bib
+editor_options: 
+  chunk_output_type: console
+params:
+   dataname: "iris"
+   sheet: 1
+---
+
+**Institutions**:  
+
+a) Department. Center. Country; 
+b) Research Institute. Country; 
+
+**Disclosures**: Authors declare that there are the following conflicts of interest related to the results of this article.  
+
+**Funding**: This study had the following sources of funding. 
+
+**Correspondence**: 
+
+- Author A. Address 1. E-mail address 1. Telephone 1. 
+
+
+<!-- Here starts the data analysis -->
+```{r setup, include=FALSE, echo=FALSE}
+knitr::opts_chunk$set(collapse = TRUE, echo=FALSE, message = FALSE, warning = FALSE, comment="  ", error=FALSE)
+```
+
+```{r install, results='hide'}
+# Installs missing libraries on render!
+list.of.packages <- c("rmarkdown", "tidyverse", "Rcpp", "knitr", "Hmisc", "readxl", "xlsx", "xtable", "pander"
+                      )
+new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
+if(length(new.packages)) install.packages(new.packages, repos='https://cran.rstudio.com/')
+```
+
+```{r libraries, results='hide'}
+# library(tidyverse)
+library(magrittr)
+library(dplyr)
+library(ggplot2)
+library(knitr)
+# try(library(xlsx))
+options(scipen=999)
+```
+
+```{r directories}
+source("./rscripts/directories.R")
+```
+
+```{r data_import}
+data(iris)
+```
+
+```{r data_summaries_means_medians}
+table_means <- iris %>%
+  group_by(
+    Species
+  ) %>%
+  summarise_all(
+    list(mean)
+  )
+table_medians <- iris %>%
+  group_by(
+    Species
+  ) %>%
+  summarise_all(
+    list(median)
+  )
+table_means_name <- "Table 1" 
+table_medians_name <- "Table 2"
+
+# Save tables
+dataname <- paste0(table_means_name, "_for iris species")  # name we will give to file
+# # save table to XLSX
+routexl <- paste(outdir, "/", dataname, ".xlsx", sep="")   # complete route to future archive
+try(
+  table_means %>%
+    xlsx::write.xlsx(routexl) # creates archive in specified route
+)
+
+dataname <- paste0(table_medians_name, "_for iris species")  # name we will give to file
+# # save table to XLSX
+routexl <- paste(outdir, "/", dataname, ".xlsx", sep="")   # complete route to future archive
+try(
+  table_medians %>%
+    xlsx::write.xlsx(routexl) # creates archive in specified route
+)
+```
+
+```{r graph_cluster}
+point_plot <- ggplot(
+  iris,
+  aes(
+    x = Sepal.Length, 
+    y = Sepal.Width, 
+    col= Species
+    )
+  ) + 
+  geom_point(
+    aes(
+      size=Petal.Length
+    ),
+    alpha=0.7
+  ) +
+  theme_bw()
+
+point_plot_name <- "Figure 1"
+ggplot2::ggsave(paste0(outdir, 
+                      "/", point_plot_name, "_iris_features", 
+                      # ".pdf"
+                      # ".eps"
+                      ".tiff"
+                      ), 
+                plot = point_plot,
+                width = 7, height = 7)
+```
+
+```{r kmeans}
+selected_data <- iris %>%
+  select(
+    Sepal.Length,
+    Sepal.Width
+  )
+clusters <- kmeans(
+  selected_data, 
+  3
+  )
+centers <- clusters$centers %>%
+  as_tibble() %>%
+  transmute(
+    SL_center = Sepal.Length,
+    SW_center = Sepal.Width
+  ) %>%
+  mutate(
+    clustering = row.names(clusters$centers)
+  )
+selected_data <- selected_data %>%
+  mutate(
+    clustering = as.character(clusters$cluster)
+  ) %>%
+  full_join(
+    centers
+  )
+
+point_plot_kmeans <- ggplot(
+  selected_data,
+  aes(
+    x=Sepal.Length,
+    y=Sepal.Width,
+    color=clustering
+  )
+  ) +
+  geom_point() +
+  geom_point(
+    data=centers,
+    aes(
+      x=SL_center,
+      y=SW_center
+    ),
+    pch = 'x', size = 12
+  ) +
+  theme_bw()
+point_plot_kmeans_name <- "Figure 2"
+ggplot2::ggsave(paste0(outdir, 
+                      "/", point_plot_kmeans_name, "_iris_kmeans", 
+                      # ".pdf"
+                      # ".eps"
+                      ".tiff"
+                      ), 
+                plot = point_plot_kmeans,
+                width = 7, height = 7)
+```
+
+#####
+
+# ABSTRACT
+
+**Background and Objectives**: 
+
+The *iris* dataset is a well known collection of flower features classified in three species: setosa, versicolor and virginica. Based on Fisher's linear discriminant model, this data set became a typical test case for many statistical classification techniques in machine learning such as support vector machines.
+The objective os this study is to describe the iris dataset as an example of semi-automated document creation using R and Rmarkdown.
+
+**Methods**: 
+
+The dataset contains a set of 150 records under five attributes - petal length, petal width, sepal length, sepal width and species.
+
+**Results**: 
+
+The number of samples is `r nrow(iris)`, being divided in `r iris %>% filter(Species == "setosa") %>% nrow()` for each species: *setosa*, *versicolor* and *virginica*. The mean sepal length for setosa, versicolor and virginica is of 
+`r table_means %>% filter(Species=="setosa") %>% select(Sepal.Length) %>% nth(1)`, 
+`r table_means %>% filter(Species=="versicolor") %>% select(Sepal.Length) %>% nth(1)`, 
+`r table_means %>% filter(Species=="virginica") %>% select(Sepal.Length) %>% nth(1)` respectively. 
+The mean petal length for setosa, versicolor and virginica is of 
+`r table_means %>% filter(Species=="setosa") %>% select(Petal.Length) %>% nth(1)`, 
+`r table_means %>% filter(Species=="versicolor") %>% select(Petal.Length) %>% nth(1)`, 
+`r table_means %>% filter(Species=="virginica") %>% select(Petal.Length) %>% nth(1)` respectively. 
+
+
+**Conclusion**: 
+
+The iris dataset is adequate for teaching a variety of statistical classification methods, and can be used as a tool to learn to make scientific articles in Rmarkdown. 
+
+*Keywords: Iris, Rmarkdown.*
+
+
+#####
+
+**Abbreviations**: 
+
+PL: petal length
+
+PW: petal width
+
+SL: sepal length
+
+SW: sepal width
+
+
+
+#####
+ 
+# INTRODUCTION
+
+The Iris flower data set or Fisher's Iris data set is a multivariate data set introduced by the British statistician and biologist Ronald Fisher in his 1936 paper The use of multiple measurements in taxonomic problems as an example of linear discriminant analysis[@fisher_use_1936]. It is sometimes called Anderson's Iris data set because Edgar Anderson collected the data to quantify the morphologic variation of Iris flowers of three related species. Based on Fisher's linear discriminant model, this data set became a typical test case for many statistical classification techniques in machine learning such as support vector machines.
+
+
+#####
+
+# METHODS
+
+## *Data collection*
+
+The dataset contains a set of 150 records under five attributes - petal length, petal width, sepal length, sepal width and species. Two of the three species were collected in the Gaspé Peninsula "all from the same pasture, and picked on the same day and measured at the same time by the same person with the same apparatus".
+
+## *Statistical analysis*
+
+The iris data set is widely used as a beginner's dataset for teaching classification methods. All analyses were performed using R v.3.4 (R Core Team, Vienna, Austria) with the 'ggplot2'[@wickham_ggplot2_2016] and 'dplyr'[@grolemund_r_nodate] packages. 
+
+
+#####
+
+# RESULTS
+
+The number of samples is `r nrow(iris)`, being divided in `r iris %>% filter(Species == "setosa") %>% nrow()` for each species: *setosa*, *versicolor* and *virginica*. The mean sepal length for setosa, versicolor and virginica is of 
+`r table_means %>% filter(Species=="setosa") %>% select(Sepal.Length) %>% nth(1)`, 
+`r table_means %>% filter(Species=="versicolor") %>% select(Sepal.Length) %>% nth(1)`, 
+`r table_means %>% filter(Species=="virginica") %>% select(Sepal.Length) %>% nth(1)` respectively. 
+The mean petal length for setosa, versicolor and virginica is of 
+`r table_means %>% filter(Species=="setosa") %>% select(Petal.Length) %>% nth(1)`, 
+`r table_means %>% filter(Species=="versicolor") %>% select(Petal.Length) %>% nth(1)`, 
+`r table_means %>% filter(Species=="virginica") %>% select(Petal.Length) %>% nth(1)` respectively (**`r table_means_name`**). Medians are represented in **`r table_medians_name`**. The relationship between sepal length and width and petal length is depicted in **`r point_plot_name`**. 
+The cluster centers are represented in **`r point_plot_kmeans_name`**. 
+
+#####
+
+# DISCUSSION 
+
+Based on Fisher's linear discriminant model, this data set became a typical test case for many statistical classification techniques in machine learning such as support vector machines [@noauthor_iris_2019;@noauthor_uci_nodate].
+
+The use of this data set in cluster analysis however is not common, since the data set only contains two clusters with rather obvious separation. One of the clusters contains Iris setosa, while the other cluster contains both Iris virginica and Iris versicolor and is not separable without the species information Fisher used. This makes the data set a good example to explain the difference between supervised and unsupervised techniques in data mining: Fisher's linear discriminant model can only be obtained when the object species are known: class labels and clusters are not necessarily the same.[@noauthor_iris_2019;@gorban_topological_2007]. 
+
+## *Clustering*
+
+Nevertheless, all three species of Iris are separable in the projection on the nonlinear branching principal component. The data set is approximated by the closest tree with some penalty for the excessive number of nodes, bending and stretching. Then the so-called "metro map" is constructed.[@gorban_topological_2007] The data points are projected into the closest node. For each node the pie diagram of the projected points is prepared. The area of the pie is proportional to the number of the projected points. It is clear from the diagram (left) that the absolute majority of the samples of the different Iris species belong to the different nodes. Only a small fraction of Iris-virginica is mixed with Iris-versicolor (the mixed blue-green nodes in the diagram). Therefore, the three species of Iris (Iris setosa, Iris virginica and Iris versicolor) are separable by the unsupervising procedures of nonlinear principal component analysis. To discriminate them, it is sufficient just to select the corresponding nodes on the principal tree. 
+
+
+## *Limitations*
+
+The dataset offers a detailed description with high quality data; however, the low number of flower features difficults a more precise classification. 
+
+
+# CONCLUSION
+
+The iris dataset is adequate for teaching a variety of statistical classification methods, and can be used as a tool to learn to make scientific articles in Rmarkdown. 
+
+
+#####
+
+# TABLES
+
+
+**`r table_means_name`**: means of the sepal and petal measures by species.
+
+```{r table_means}
+pander::panderOptions("digits", 2)
+pander::pander(table_means)
+```
+
+**`r table_medians_name`**: medians of the sepal and petal measures by species.
+
+```{r table_medians}
+pander::panderOptions("digits", 2)
+pander::pander(table_medians)
+```
+
+
+
+#####
+
+# FIGURES
+
+**`r point_plot_name`**: iris species classification.
+
+```{r}
+point_plot
+```
+
+#####
+
+**`r point_plot_kmeans_name`**: iris K-means classification.
+
+```{r}
+point_plot_kmeans
+```
+
+
+#####
+
+# REFERENCES
+
