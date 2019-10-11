@@ -11,9 +11,6 @@ output:
   html_document:
     toc: true
     toc_depth: 4
-    # toc_float:
-      # collapsed: false
-      # smooth_scroll: false
     highlight: tango
 always_allow_html: yes 
 bibliography: ./bib/bibliography.bib
@@ -40,12 +37,15 @@ b) Research Institute. Country;
 
 <!-- Here starts the data analysis -->
 ```{r setup, include=FALSE, echo=FALSE}
-knitr::opts_chunk$set(collapse = TRUE, echo=FALSE, message = FALSE, warning = FALSE, comment="  ", error=FALSE)
+knitr::opts_chunk$set(collapse = TRUE, echo=FALSE, message = FALSE, warning = FALSE, error=FALSE, comment="  ", dpi = 300
+                      # fig.height = 7, fig.width = 7
+                      )
 ```
 
 ```{r install, results='hide'}
 # Installs missing libraries on render!
-list.of.packages <- c("rmarkdown", "tidyverse", "Rcpp", "knitr", "Hmisc", "readxl", "xlsx", "xtable", "pander"
+list.of.packages <- c("rmarkdown", "tidyverse", "Rcpp", "knitr", 
+                      "Hmisc", "readxl", "xlsx", "xtable", "pander"
                       )
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
 if(length(new.packages)) install.packages(new.packages, repos='https://cran.rstudio.com/')
@@ -70,6 +70,7 @@ data(iris)
 ```
 
 ```{r data_summaries_means_medians}
+# Table summaries by mean & median
 table_means <- iris %>%
   group_by(
     Species
@@ -91,18 +92,18 @@ table_medians_name <- "Table 2"
 dataname <- paste0(table_means_name, "_for iris species")  # name we will give to file
 # # save table to XLSX
 routexl <- paste(outdir, "/", dataname, ".xlsx", sep="")   # complete route to future archive
-try(
-  table_means %>%
-    xlsx::write.xlsx(routexl) # creates archive in specified route
-)
+# try(
+#   table_means %>%
+#     xlsx::write.xlsx(routexl) # creates archive in specified route
+# )
 
 dataname <- paste0(table_medians_name, "_for iris species")  # name we will give to file
 # # save table to XLSX
-routexl <- paste(outdir, "/", dataname, ".xlsx", sep="")   # complete route to future archive
-try(
-  table_medians %>%
-    xlsx::write.xlsx(routexl) # creates archive in specified route
-)
+# routexl <- paste(outdir, "/", dataname, ".xlsx", sep="")   # complete route to future archive
+# try(
+#   table_medians %>%
+#     xlsx::write.xlsx(routexl) # creates archive in specified route
+# )
 ```
 
 ```{r graph_cluster}
@@ -134,6 +135,7 @@ ggplot2::ggsave(paste0(outdir,
 ```
 
 ```{r kmeans}
+# K-means analysis
 selected_data <- iris %>%
   select(
     Sepal.Length,
@@ -159,7 +161,7 @@ selected_data <- selected_data %>%
   full_join(
     centers
   )
-
+# kmeans plot
 point_plot_kmeans <- ggplot(
   selected_data,
   aes(
@@ -188,6 +190,10 @@ ggplot2::ggsave(paste0(outdir,
                 plot = point_plot_kmeans,
                 width = 7, height = 7)
 ```
+
+
+<!-- here starts the visible manuscript -->
+
 
 #####
 
