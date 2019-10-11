@@ -58,36 +58,45 @@ h6 {
 }
 
 .alert {
-padding: 15px;
-margin-bottom: 20px;
-border: 1px solid transparent;
-border-radius: 4px;
+  padding: 15px;
+  margin-bottom: 20px;
+  border: 1px solid transparent;
+  border-radius: 4px;
 }
 .alert-success {
-color: #3c763d;
-background-color: #dff0d8;
-border-color: #d6e9c6;
+  color: #3c763d;
+  background-color: #dff0d8;
+  border-color: #d6e9c6;
+  opacity: 0.85;
+  border-radius: 10px;
 }
 .alert-warning{
   color:#8a6d3b;
   background-color:#fcf8e3;
-  border-color:#faebcc
+  border-color:#faebcc;
+  opacity: 0.85;
+  border-radius: 10px;
 }
 .alert-danger,
 .alert-error {
   color: #b94a48;
   background-color: #f2dede;
   border-color: #eed3d7;
+  opacity: 0.85;
+  border-radius: 10px;
 }
 .alert-info {
   color: #3a87ad;
   background-color: #d9edf7;
   border-color: #bce8f1;
+  opacity: 0.85;
+  border-radius: 10px;
 }
 .alert-gray {
   background-color: #f2f3f2;
   border-color: #f2f3f2;
   opacity: 0.85;
+  border-radius: 10px;
 }
 
 @media print {
