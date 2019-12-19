@@ -4,14 +4,14 @@ author: "Author A(a, b)"
 # date: "`r format(Sys.time(), '%d %B, %Y')`"
 csl: ./bib/csl/anesthesiology.csl # go to https://www.zotero.org/styles for more journal styles.
 output:
-  word_document:
-    highlight: tango
-    toc: false
-    reference_docx: ./assets/word_templates/mystyles9pt-orig.docx
   html_document:
     toc: true
     toc_depth: 4
     highlight: tango
+  word_document:
+    highlight: tango
+    toc: false
+    reference_docx: ./assets/word_templates/mystyles9pt-orig.docx
   pdf_document:
     keep_tex: false
     toc: yes
@@ -254,7 +254,7 @@ SW: sepal width
  
 # INTRODUCTION
 
-The Iris flower data set or Fisher's Iris data set is a multivariable data set introduced by the British statistician and biologist Ronald Fisher in his 1936 paper *The use of multiple measurements in taxonomic problems* as an example of linear discriminant analysis[@fisher_use_1936]. It is sometimes called *Anderson's Iris data set* because Edgar Anderson collected the data to quantify the morphologic variation of Iris flowers of three related species. Based on Fisher's linear discriminant model, this data set became a typical test case for many statistical classification techniques in machine learning such as support vector machines.
+<font color='orange'>The Iris flower data set</font> or Fisher's Iris data set is a multivariable data set introduced by the British statistician and biologist Ronald Fisher in his 1936 paper *The use of multiple measurements in taxonomic problems* as an example of linear discriminant analysis[@fisher_use_1936]. It is sometimes called *Anderson's Iris data set* because Edgar Anderson collected the data to quantify the morphologic variation of Iris flowers of three related species. Based on Fisher's linear discriminant model, this data set became a typical test case for many statistical classification techniques in machine learning such as support vector machines.
 
 
 #####
