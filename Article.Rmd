@@ -2,7 +2,7 @@
 title: "Relationship between different types of iris features and iris species"
 author: "Author A(a, b)"
 # date: "`r format(Sys.time(), '%d %B, %Y')`"
-csl: ./bib/csl/anesthesiology.csl
+csl: ./bib/csl/anesthesiology.csl # go to https://www.zotero.org/styles for more journal styles.
 output:
   word_document:
     highlight: tango
@@ -12,8 +12,12 @@ output:
     toc: true
     toc_depth: 4
     highlight: tango
+  pdf_document:
+    keep_tex: false
+    toc: yes
+    toc_depth: '4'
 always_allow_html: yes 
-bibliography: ./bib/bibliography.bib
+bibliography: ./bib/iris.bib
 editor_options: 
   chunk_output_type: console
 params:
@@ -63,6 +67,11 @@ options(scipen=999)
 
 ```{r directories}
 source("./rscripts/directories.R")
+```
+
+```{r fun_kabler_tabler}
+source("./rscripts/kabler_tabler.R", echo=FALSE)
+# kabler() # formats with striped html table
 ```
 
 ```{r data_import}
@@ -245,7 +254,7 @@ SW: sepal width
  
 # INTRODUCTION
 
-The Iris flower data set or Fisher's Iris data set is a multivariate data set introduced by the British statistician and biologist Ronald Fisher in his 1936 paper The use of multiple measurements in taxonomic problems as an example of linear discriminant analysis[@fisher_use_1936]. It is sometimes called Anderson's Iris data set because Edgar Anderson collected the data to quantify the morphologic variation of Iris flowers of three related species. Based on Fisher's linear discriminant model, this data set became a typical test case for many statistical classification techniques in machine learning such as support vector machines.
+The Iris flower data set or Fisher's Iris data set is a multivariable data set introduced by the British statistician and biologist Ronald Fisher in his 1936 paper *The use of multiple measurements in taxonomic problems* as an example of linear discriminant analysis[@fisher_use_1936]. It is sometimes called *Anderson's Iris data set* because Edgar Anderson collected the data to quantify the morphologic variation of Iris flowers of three related species. Based on Fisher's linear discriminant model, this data set became a typical test case for many statistical classification techniques in machine learning such as support vector machines.
 
 
 #####
@@ -281,11 +290,13 @@ The cluster centers are represented in **`r point_plot_kmeans_name`**.
 
 Based on Fisher's linear discriminant model, this data set became a typical test case for many statistical classification techniques in machine learning such as support vector machines [@noauthor_iris_2019;@noauthor_uci_nodate].
 
-The use of this data set in cluster analysis however is not common, since the data set only contains two clusters with rather obvious separation. One of the clusters contains Iris setosa, while the other cluster contains both Iris virginica and Iris versicolor and is not separable without the species information Fisher used. This makes the data set a good example to explain the difference between supervised and unsupervised techniques in data mining: Fisher's linear discriminant model can only be obtained when the object species are known: class labels and clusters are not necessarily the same.[@noauthor_iris_2019;@gorban_topological_2007]. 
+The use of this data set in cluster analysis however is not common, since the data set only contains two clusters with rather obvious separation. One of the clusters contains *Iris setosa*, while the other cluster contains both *Iris virginica* and *Iris versicolor* and is not separable without the species information Fisher used. This makes the data set a good example to explain the difference between supervised and unsupervised techniques in data mining: Fisher's linear discriminant model can only be obtained when the object species are known: class labels and clusters are not necessarily the same.[@noauthor_iris_2019;@gorban_topological_2007]. 
 
 ## *Clustering*
 
-Nevertheless, all three species of Iris are separable in the projection on the nonlinear branching principal component. The data set is approximated by the closest tree with some penalty for the excessive number of nodes, bending and stretching. Then the so-called "metro map" is constructed.[@gorban_topological_2007] The data points are projected into the closest node. For each node the pie diagram of the projected points is prepared. The area of the pie is proportional to the number of the projected points. It is clear from the diagram (left) that the absolute majority of the samples of the different Iris species belong to the different nodes. Only a small fraction of Iris-virginica is mixed with Iris-versicolor (the mixed blue-green nodes in the diagram). Therefore, the three species of Iris (Iris setosa, Iris virginica and Iris versicolor) are separable by the unsupervising procedures of nonlinear principal component analysis. To discriminate them, it is sufficient just to select the corresponding nodes on the principal tree. 
+Nevertheless, all three species of Iris are separable in the projection on the nonlinear branching principal component. The data set is approximated by the closest tree with some penalty for the excessive number of nodes, bending and stretching. Then the so-called "metro map" is constructed.[@gorban_topological_2007] The data points are projected into the closest node. For each node the pie diagram of the projected points is prepared. The area of the pie is proportional to the number of the projected points. It is clear from the diagram (left) that the absolute majority of the samples of the different Iris species belong to the different nodes. Only a small fraction of Iris-virginica is mixed with Iris-versicolor (the mixed blue-green nodes in the diagram). 
+
+Therefore, the three species of Iris (Iris setosa, Iris virginica and Iris versicolor) are separable by the unsupervising procedures of nonlinear principal component analysis. To discriminate them, it is sufficient just to select the corresponding nodes on the principal tree. 
 
 
 ## *Limitations*
