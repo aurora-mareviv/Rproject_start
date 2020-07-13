@@ -1,4 +1,4 @@
-# ProjectR2
+# Rproject_start
 
 A template for self-contained projects  
 
